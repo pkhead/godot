@@ -158,15 +158,15 @@ public:
 			STENCIL_FLAG_WRITE_DEPTH_FAIL = 4,
 		};
 
-		enum StencilOp {
-			STENCIL_OP_REPLACE,
-			STENCIL_OP_KEEP,
-			STENCIL_OP_INVERT,
-			STENCIL_OP_INCREMENT_WRAP,
-			STENCIL_OP_INCREMENT_CLAMP,
-			STENCIL_OP_DECREMENT_WRAP,
-			STENCIL_OP_DECREMENT_CLAMP,
-			STENCIL_OP_MAX // Not an actual operator, just the count
+		enum StencilOperation {
+			STENCIL_OPERATION_REPLACE,
+			STENCIL_OPERATION_KEEP,
+			STENCIL_OPERATION_INVERT,
+			STENCIL_OPERATION_INCREMENT_WRAP,
+			STENCIL_OPERATION_INCREMENT_CLAMP,
+			STENCIL_OPERATION_DECREMENT_WRAP,
+			STENCIL_OPERATION_DECREMENT_CLAMP,
+			STENCIL_OPERATION_MAX // Not an actual operator, just the count
 		};
 
 		enum StencilCompare {
@@ -227,7 +227,7 @@ public:
 
 		bool stencil_enabled = false;
 		uint32_t stencil_flags = 0;
-		StencilOp stencil_op = STENCIL_OP_REPLACE;
+		StencilOperation stencil_op = STENCIL_OPERATION_REPLACE;
 		StencilCompare stencil_compare = STENCIL_COMPARE_LESS;
 		uint32_t stencil_reference = 0;
 

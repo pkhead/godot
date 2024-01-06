@@ -334,15 +334,15 @@ public:
 		STENCIL_FLAG_NUM_BITS = 3 // Not an actual mode, just the amount of bits.
 	};
 
-	enum StencilOp {
-		STENCIL_OP_REPLACE,
-		STENCIL_OP_KEEP,
-		STENCIL_OP_INVERT,
-		STENCIL_OP_INCREMENT_WRAP,
-		STENCIL_OP_INCREMENT_CLAMP,
-		STENCIL_OP_DECREMENT_WRAP,
-		STENCIL_OP_DECREMENT_CLAMP,
-		STENCIL_OP_MAX // Not an actual operator, just the count
+	enum StencilOperation {
+		STENCIL_OPERATION_REPLACE,
+		STENCIL_OPERATION_KEEP,
+		STENCIL_OPERATION_INVERT,
+		STENCIL_OPERATION_INCREMENT_WRAP,
+		STENCIL_OPERATION_INCREMENT_CLAMP,
+		STENCIL_OPERATION_DECREMENT_WRAP,
+		STENCIL_OPERATION_DECREMENT_CLAMP,
+		STENCIL_OPERATION_MAX // Not an actual operator, just the count
 	};
 
 	enum StencilCompare {
@@ -379,7 +379,7 @@ private:
 		// stencil
 		uint64_t stencil_mode : get_num_bits(STENCIL_MODE_MAX - 1);
 		uint64_t stencil_flags : STENCIL_FLAG_NUM_BITS;
-		uint64_t stencil_op : get_num_bits(STENCIL_OP_MAX - 1);
+		uint64_t stencil_op : get_num_bits(STENCIL_OPERATION_MAX - 1);
 		uint64_t stencil_compare : get_num_bits(STENCIL_COMPARE_MAX - 1);
 		uint64_t stencil_reference : 8;
 
@@ -616,7 +616,7 @@ private:
 
 	StencilMode stencil_mode = STENCIL_MODE_DISABLED;
 	int stencil_flags = STENCIL_FLAG_READ;
-	StencilOp stencil_op = STENCIL_OP_REPLACE;
+	StencilOperation stencil_op = STENCIL_OPERATION_REPLACE;
 	StencilCompare stencil_compare = STENCIL_COMPARE_EQUAL;
 	int stencil_reference = 1;
 
@@ -848,8 +848,8 @@ public:
 	void set_stencil_compare(StencilCompare p_op);
 	StencilCompare get_stencil_compare() const;
 
-	void set_stencil_operation(StencilOp p_op);
-	StencilOp get_stencil_operation() const;
+	void set_stencil_operation(StencilOperation p_op);
+	StencilOperation get_stencil_operation() const;
 
 	void set_stencil_reference(int p_reference);
 	int get_stencil_reference() const;
@@ -903,7 +903,7 @@ VARIANT_ENUM_CAST(BaseMaterial3D::EmissionOperator)
 VARIANT_ENUM_CAST(BaseMaterial3D::DistanceFadeMode)
 VARIANT_ENUM_CAST(BaseMaterial3D::StencilMode)
 VARIANT_ENUM_CAST(BaseMaterial3D::StencilFlags)
-VARIANT_ENUM_CAST(BaseMaterial3D::StencilOp)
+VARIANT_ENUM_CAST(BaseMaterial3D::StencilOperation)
 VARIANT_ENUM_CAST(BaseMaterial3D::StencilCompare)
 
 class StandardMaterial3D : public BaseMaterial3D {

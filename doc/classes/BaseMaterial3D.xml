@@ -365,6 +365,9 @@
 		<member name="stencil_color" type="Color" setter="set_stencil_effect_color" getter="get_stencil_effect_color">
 			The primary color of the stencil effect.
 		</member>
+		<member name="stencil_operation" type="int" setter="set_stencil_operation" getter="get_stencil_operation" enum="BaseMaterial3D.StencilOperation">
+			The operation to perform in the stencil buffer when writing. See [enum StencilOperation].
+		</member>
 		<member name="stencil_compare" type="int" setter="set_stencil_compare" getter="get_stencil_compare" enum="BaseMaterial3D.StencilCompare">
 			The comparison operator to use for stencil masking operations. See [enum StencilCompare].
 		</member>
@@ -835,10 +838,31 @@
 			The material will only be rendered where it passes a stencil comparison with existing stencil buffer values. See [enum StencilCompare].
 		</constant>
 		<constant name="STENCIL_FLAG_WRITE" value="2" enum="StencilFlags">
-			The material will write the reference value to the stencil buffer where it passes the depth test.
+			The material will modify the stencil buffer with the reference value to where it passes the depth test. See [enum StencilOperation].
 		</constant>
 		<constant name="STENCIL_FLAG_WRITE_DEPTH_FAIL" value="4" enum="StencilFlags">
-			The material will write the reference value to the stencil buffer where it fails the depth test.
+			The material will modify the stencil buffer with the reference value where it fails the depth test. See [enum StencilOperation].
+		</constant>
+		<constant name="STENCIL_OPERATION_REPLACE" value="0" enum="StencilOperation">
+			Replaces the existing stencil value with the reference value.
+		</constant>
+		<constant name="STENCIL_OPERATION_KEEP" value="1" enum="StencilOperation">
+			Keep the existing stencil value.
+		</constant>
+		<constant name="STENCIL_OPERATION_INVERT" value="2" enum="StencilOperation">
+			Bitwise-invert the existing stencil value with the reference value.
+		</constant>
+		<constant name="STENCIL_OPERATION_INCREMENT_WRAP" value="3" enum="StencilOperation">
+			Increment the stencil value by the reference value, and wrap around to `0` if reaching the maximum representable unsigned. Stencil bits are considered as an unsigned integer.
+		</constant>
+		<constant name="STENCIL_OPERATION_INCREMENT_CLAMP" value="4" enum="StencilOperation">
+			Increment the existing stencil value by the reference value, and clamp to the maximum representable unsigned value if reached. Stencil bits are considered as an unsigned integer.
+		</constant>
+		<constant name="STENCIL_OPERATION_DECREMENT_WRAP" value="5" enum="StencilOperation">
+			Decrement the stencil value by the reference value and wrap around to the maximum representable unsigned if reaching the minimum. Stencil bits are considered as an unsigned integer.
+		</constant>
+		<constant name="STENCIL_OPERATION_DECREMENT_CLAMP" value="6" enum="StencilOperation">
+			Decrement the existing stencil value by the reference value and clamp to the minimum value if reached. Stencil bits are considered as an unsigned integer.
 		</constant>
 		<constant name="STENCIL_COMPARE_LESS" value="0" enum="StencilCompare">
 			Passes the stencil test when the reference value is less than the existing stencil value.

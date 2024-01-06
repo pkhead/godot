@@ -869,6 +869,32 @@ void BaseMaterial3D::_update_shader() {
 				break;
 		}
 
+		switch (stencil_op) {
+			case STENCIL_OPERATION_REPLACE:
+				code += "operation_replace,";
+				break;
+			case STENCIL_OPERATION_KEEP:
+				code += "operation_keep,";
+				break;
+			case STENCIL_OPERATION_INVERT:
+				code += "operation_invert,";
+				break;
+			case STENCIL_OPERATION_INCREMENT_WRAP:
+				code += "operation_increment_wrap,";
+				break;
+			case STENCIL_OPERATION_INCREMENT_CLAMP:
+				code += "operation_increment_clamp,";
+				break;
+			case STENCIL_OPERATION_DECREMENT_WRAP:
+				code += "operation_decrement_wrap,";
+				break;
+			case STENCIL_OPERATION_DECREMENT_CLAMP:
+				code += "operation_decrement_clamp,";
+				break;
+			case STENCIL_OPERATION_MAX:
+				break;
+		}
+
 		code += vformat("%s;\n", stencil_reference);
 	}
 
@@ -2151,7 +2177,7 @@ void BaseMaterial3D::_validate_property(PropertyInfo &p_property) const {
 		p_property.usage = PROPERTY_USAGE_NONE;
 	}
 
-	if ((p_property.name == "stencil_flags" || p_property.name == "stencil_compare") && stencil_mode != STENCIL_MODE_CUSTOM) {
+	if ((p_property.name == "stencil_flags" || p_property.name == "stencil_compare" || p_property.name == "stencil_operation") && stencil_mode != STENCIL_MODE_CUSTOM) {
 		p_property.usage = PROPERTY_USAGE_NONE;
 	}
 
@@ -2633,6 +2659,7 @@ void BaseMaterial3D::_prepare_stencil_effect() {
 			break;
 		case STENCIL_MODE_OUTLINE:
 			set_stencil_flags(STENCIL_FLAG_WRITE);
+			set_stencil_operation(STENCIL_OPERATION_REPLACE);
 			set_stencil_compare(STENCIL_COMPARE_ALWAYS);
 			stencil_next_pass->set_render_priority(-1);
 			stencil_next_pass->set_shading_mode(SHADING_MODE_UNSHADED);
@@ -2643,11 +2670,13 @@ void BaseMaterial3D::_prepare_stencil_effect() {
 			stencil_next_pass->set_albedo(stencil_effect_color);
 			stencil_next_pass->set_stencil_mode(STENCIL_MODE_CUSTOM);
 			stencil_next_pass->set_stencil_flags(STENCIL_FLAG_READ | STENCIL_FLAG_WRITE);
+			stencil_next_pass->set_stencil_operation(STENCIL_OPERATION_REPLACE);
 			stencil_next_pass->set_stencil_compare(STENCIL_COMPARE_NOT_EQUAL);
 			stencil_next_pass->set_stencil_reference(stencil_reference);
 			break;
 		case STENCIL_MODE_XRAY:
 			set_stencil_flags(STENCIL_FLAG_WRITE);
+			set_stencil_operation(STENCIL_OPERATION_REPLACE);
 			set_stencil_compare(STENCIL_COMPARE_ALWAYS);
 			stencil_next_pass->set_render_priority(-1);
 			stencil_next_pass->set_shading_mode(SHADING_MODE_UNSHADED);
@@ -2658,6 +2687,7 @@ void BaseMaterial3D::_prepare_stencil_effect() {
 			stencil_next_pass->set_albedo(stencil_effect_color);
 			stencil_next_pass->set_stencil_mode(STENCIL_MODE_CUSTOM);
 			stencil_next_pass->set_stencil_flags(STENCIL_FLAG_READ | STENCIL_FLAG_WRITE);
+			stencil_next_pass->set_stencil_operation(STENCIL_OPERATION_REPLACE);
 			stencil_next_pass->set_stencil_compare(STENCIL_COMPARE_NOT_EQUAL);
 			stencil_next_pass->set_stencil_reference(stencil_reference);
 			break;
@@ -2705,6 +2735,19 @@ void BaseMaterial3D::set_stencil_flags(int p_stencil_flags) {
 
 int BaseMaterial3D::get_stencil_flags() const {
 	return stencil_flags;
+}
+
+void BaseMaterial3D::set_stencil_operation(BaseMaterial3D::StencilOperation p_op) {
+	if (stencil_op == p_op) {
+		return;
+	}
+
+	stencil_op = p_op;
+	_queue_shader_change();
+}
+
+BaseMaterial3D::StencilOperation BaseMaterial3D::get_stencil_operation() const {
+	return stencil_op;
 }
 
 void BaseMaterial3D::set_stencil_compare(BaseMaterial3D::StencilCompare p_op) {
@@ -3001,6 +3044,9 @@ void BaseMaterial3D::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_stencil_flags", "stencil_flags"), &BaseMaterial3D::set_stencil_flags);
 	ClassDB::bind_method(D_METHOD("get_stencil_flags"), &BaseMaterial3D::get_stencil_flags);
 
+	ClassDB::bind_method(D_METHOD("set_stencil_operation", "stencil_operation"), &BaseMaterial3D::set_stencil_operation);
+	ClassDB::bind_method(D_METHOD("get_stencil_operation"), &BaseMaterial3D::get_stencil_operation);
+
 	ClassDB::bind_method(D_METHOD("set_stencil_compare", "stencil_compare"), &BaseMaterial3D::set_stencil_compare);
 	ClassDB::bind_method(D_METHOD("get_stencil_compare"), &BaseMaterial3D::get_stencil_compare);
 
@@ -3191,6 +3237,7 @@ void BaseMaterial3D::_bind_methods() {
 	ADD_GROUP("Stencil", "stencil_");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "stencil_mode", PROPERTY_HINT_ENUM, "Disabled,Outline,Xray,Custom"), "set_stencil_mode", "get_stencil_mode");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "stencil_flags", PROPERTY_HINT_FLAGS, "Read,Write,Write Depth Fail"), "set_stencil_flags", "get_stencil_flags");
+	ADD_PROPERTY(PropertyInfo(Variant::INT, "stencil_operation", PROPERTY_HINT_ENUM, "Replace,Keep,Invert,Increment Wrap,Increment Clamp,Decrement Wrap,Decrement Clamp"), "set_stencil_operation", "get_stencil_operation");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "stencil_compare", PROPERTY_HINT_ENUM, "Less,Equal,Less Or Equal,Greater,Not Equal,Greater Or Equal,Always"), "set_stencil_compare", "get_stencil_compare");
 	ADD_PROPERTY(PropertyInfo(Variant::INT, "stencil_reference", PROPERTY_HINT_RANGE, "0,255,1"), "set_stencil_reference", "get_stencil_reference");
 
@@ -3341,13 +3388,13 @@ void BaseMaterial3D::_bind_methods() {
 	BIND_ENUM_CONSTANT(STENCIL_FLAG_WRITE);
 	BIND_ENUM_CONSTANT(STENCIL_FLAG_WRITE_DEPTH_FAIL);
 
-	BIND_ENUM_CONSTANT(STENCIL_OP_REPLACE);
-	BIND_ENUM_CONSTANT(STENCIL_OP_KEEP);
-	BIND_ENUM_CONSTANT(STENCIL_OP_INVERT);
-	BIND_ENUM_CONSTANT(STENCIL_OP_INCREMENT_WRAP);
-	BIND_ENUM_CONSTANT(STENCIL_OP_INCREMENT_CLAMP);
-	BIND_ENUM_CONSTANT(STENCIL_OP_DECREMENT_WRAP);
-	BIND_ENUM_CONSTANT(STENCIL_OP_DECREMENT_CLAMP);
+	BIND_ENUM_CONSTANT(STENCIL_OPERATION_REPLACE);
+	BIND_ENUM_CONSTANT(STENCIL_OPERATION_KEEP);
+	BIND_ENUM_CONSTANT(STENCIL_OPERATION_INVERT);
+	BIND_ENUM_CONSTANT(STENCIL_OPERATION_INCREMENT_WRAP);
+	BIND_ENUM_CONSTANT(STENCIL_OPERATION_INCREMENT_CLAMP);
+	BIND_ENUM_CONSTANT(STENCIL_OPERATION_DECREMENT_WRAP);
+	BIND_ENUM_CONSTANT(STENCIL_OPERATION_DECREMENT_CLAMP);
 
 	BIND_ENUM_CONSTANT(STENCIL_COMPARE_LESS);
 	BIND_ENUM_CONSTANT(STENCIL_COMPARE_EQUAL);
