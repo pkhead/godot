@@ -86,6 +86,7 @@ void SceneShaderForwardMobile::ShaderData::set_code(const String &p_code) {
 	int stencil_readi = 0;
 	int stencil_writei = 0;
 	int stencil_write_depth_faili = 0;
+	int stencil_opi = STENCIL_OP_REPLACE;
 	int stencil_comparei = STENCIL_COMPARE_ALWAYS;
 	int stencil_referencei = -1;
 
@@ -158,6 +159,14 @@ void SceneShaderForwardMobile::ShaderData::set_code(const String &p_code) {
 	actions.stencil_mode_values["write"] = Pair<int *, int>(&stencil_writei, STENCIL_FLAG_WRITE);
 	actions.stencil_mode_values["write_depth_fail"] = Pair<int *, int>(&stencil_write_depth_faili, STENCIL_FLAG_WRITE_DEPTH_FAIL);
 
+	actions.stencil_mode_values["operation_replace"] = Pair<int *, int>(&stencil_opi, STENCIL_OP_REPLACE);
+	actions.stencil_mode_values["operation_keep"] = Pair<int *, int>(&stencil_opi, STENCIL_OP_KEEP);
+	actions.stencil_mode_values["operation_invert"] = Pair<int *, int>(&stencil_opi, STENCIL_OP_INVERT);
+	actions.stencil_mode_values["operation_increment_wrap"] = Pair<int *, int>(&stencil_opi, STENCIL_OP_INCREMENT_WRAP);
+	actions.stencil_mode_values["operation_increment_clamp"] = Pair<int *, int>(&stencil_opi, STENCIL_OP_INCREMENT_CLAMP);
+	actions.stencil_mode_values["operation_decrement_wrap"] = Pair<int *, int>(&stencil_opi, STENCIL_OP_DECREMENT_WRAP);
+	actions.stencil_mode_values["operation_decrement_clamp"] = Pair<int *, int>(&stencil_opi, STENCIL_OP_DECREMENT_CLAMP);
+
 	actions.stencil_mode_values["compare_less"] = Pair<int *, int>(&stencil_comparei, STENCIL_COMPARE_LESS);
 	actions.stencil_mode_values["compare_equal"] = Pair<int *, int>(&stencil_comparei, STENCIL_COMPARE_EQUAL);
 	actions.stencil_mode_values["compare_less_or_equal"] = Pair<int *, int>(&stencil_comparei, STENCIL_COMPARE_LESS_OR_EQUAL);
@@ -194,6 +203,7 @@ void SceneShaderForwardMobile::ShaderData::set_code(const String &p_code) {
 	stencil_enabled = stencil_referencei != -1;
 	stencil_flags = stencil_readi | stencil_writei | stencil_write_depth_faili;
 	stencil_compare = StencilCompare(stencil_comparei);
+	stencil_op = StencilOp(stencil_opi);
 	stencil_reference = stencil_referencei;
 
 #ifdef DEBUG_ENABLED
@@ -335,6 +345,16 @@ void SceneShaderForwardMobile::ShaderData::set_code(const String &p_code) {
 			RD::COMPARE_OP_ALWAYS,
 		};
 
+		RD::StencilOperation stencil_op_rd_table[STENCIL_OP_MAX] = {
+			RD::STENCIL_OP_REPLACE,
+			RD::STENCIL_OP_KEEP,
+			RD::STENCIL_OP_INVERT,
+			RD::STENCIL_OP_INCREMENT_AND_WRAP,
+			RD::STENCIL_OP_INCREMENT_AND_CLAMP,
+			RD::STENCIL_OP_DECREMENT_AND_WRAP,
+			RD::STENCIL_OP_DECREMENT_AND_CLAMP,
+		};
+
 		uint32_t stencil_mask = 255;
 
 		RD::PipelineDepthStencilState::StencilOperationState op;
@@ -351,12 +371,12 @@ void SceneShaderForwardMobile::ShaderData::set_code(const String &p_code) {
 		}
 
 		if (stencil_flags & STENCIL_FLAG_WRITE) {
-			op.pass = RD::STENCIL_OP_REPLACE;
+			op.pass = stencil_op_rd_table[stencil_op];
 			op.write_mask = stencil_mask;
 		}
 
 		if (stencil_flags & STENCIL_FLAG_WRITE_DEPTH_FAIL) {
-			op.depth_fail = RD::STENCIL_OP_REPLACE;
+			op.depth_fail = stencil_op_rd_table[stencil_op];
 			op.write_mask = stencil_mask;
 		}
 

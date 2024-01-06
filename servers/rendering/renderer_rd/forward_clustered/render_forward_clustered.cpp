@@ -1048,7 +1048,7 @@ void RenderForwardClustered::_fill_render_list(RenderListType p_render_list, con
 						render_list[RENDER_LIST_OPAQUE_NO_DEPTH_PREPASS].add_element(surf);
 						scene_state.used_opaque_no_depth_prepass = true;
 					} else {
-						r1->add_element(surf);
+						rl->add_element(surf);
 					}
 				}
 
@@ -2019,7 +2019,7 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 					c.push_back(Color(0, 0, 0, 0)); // Motion vector. Pushed to the clear color vector even if the framebuffer isn't bound.
 				}
 			}
-			
+
 			uint32_t opaque_color_pass_flags = using_motion_pass ? (color_pass_flags & ~COLOR_PASS_FLAG_MOTION_VECTORS) : color_pass_flags;
 			RID opaque_framebuffer = using_motion_pass ? rb_data->get_color_pass_fb(opaque_color_pass_flags) : color_framebuffer;
 
@@ -2038,7 +2038,7 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 						get_debug_draw_mode() == RS::VIEWPORT_DEBUG_DRAW_WIREFRAME,
 						Vector2(),
 						p_render_data->scene_data->lod_distance_multiplier,
-						p_render_data->scene_data->screen_mesh_lod_threshold
+						p_render_data->scene_data->screen_mesh_lod_threshold,
 						p_render_data->scene_data->view_count);
 				_render_list_with_threads(
 						&render_list_params,
@@ -2051,7 +2051,7 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 						1.0,
 						0);
 			}
-			
+
 			// Opaque without depth prepass.
 			if (scene_state.used_opaque_no_depth_prepass) {
 				//TODO: Might need to call _setup_environment here to disable screen-space effects.
@@ -2083,7 +2083,7 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 						0);
 			}
 		}
-		
+
 		RD::get_singleton()->draw_command_end_label();
 
 		if (using_motion_pass) {
@@ -2111,7 +2111,7 @@ void RenderForwardClustered::_render_scene(RenderDataRD *p_render_data, const Co
 				RD::get_singleton()->draw_list_end();
 			}
 		}
-		
+
 		if (will_continue_color && using_separate_specular) {
 			// Close the specular framebuffer as it'll no longer be used.
 			RD::get_singleton()->draw_list_begin(rb_data->get_specular_only_fb(), RD::INITIAL_ACTION_CONTINUE, RD::FINAL_ACTION_READ, RD::INITIAL_ACTION_CONTINUE, RD::FINAL_ACTION_CONTINUE);
